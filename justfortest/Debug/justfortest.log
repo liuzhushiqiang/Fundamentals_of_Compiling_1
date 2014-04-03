@@ -1,0 +1,3 @@
+﻿  justfortest.cpp
+i:\documents\visual studio 2010\projects\justfortest\justfortest\touwenjian.h(184): warning C4715: 'status_add_element' : not all control paths return a value
+  justfortest.vcxproj -> i:\documents\visual studio 2010\Projects\justfortest\Debug\justfortest.exe
