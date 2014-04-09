@@ -2,15 +2,42 @@ using namespace std;
 
 #define M 1000	//状态数
 #define N 70	//字母表大小
+#define END_MAX 20	//终态的个数
+#define STACK_SIZE 50
 
 typedef struct Element{
 	int index;		//状态中元素的下标
 	struct Element * next_element;
 } Element, *Status;		//该类型代表状态中的元素，指向该类型的指针代表一个状态。
 
-Status status[M];	//所有状态
-Status transfer_table[M][N];	//状态转移表
-char letters[N];	//所有字母
+typedef struct {
+	Status status[M];	//所有状态
+	int status_size;	//状态个数
+	Status transfer_table[M][N];	//状态转移表
+	char letters[N];	//所有字母
+	int letters_size;	//字母个数
+	Status the_start;
+	Status the_end[END_MAX];
+	int the_end_size;
+} Transfer_Info, *Transfer_Info_Ptr;
+
+typedef struct{
+	Transfer_Info_Ptr tip[STACK_SIZE];
+	int head;
+} Calculating_Stack;
+
+typedef struct{
+	char c[STACK_SIZE];
+	int head;
+} Reg_Exp_Letter_Stack;
+
+/************************************************************************/
+/*    functions about Status                                                                  */
+/************************************************************************/
+void status_init(Status& s1, int index, Status s2){
+	s1->index = index;
+	s1->next_element = s2;
+}
 
 Status status_union(Status s1, Status s2){		//集合并运算,返回一个新的集合
 	Status ret = NULL;
@@ -231,5 +258,120 @@ void status_display(Status p){		//打印集合中的元素
 void status_create(Status &s, int* a, int n){		//根据数组中的元素创建一个集合，a为数组，数组中的值为待创建集合中元素的下标，n为数组大小
 	for(int i = 0; i < n; i++){
 		status_add_element(s, a[i]);
+	}
+}
+
+/************************************************************************/
+/*   functions about Transfer_Info                                                                 */
+/************************************************************************/
+
+
+void transfer_info_init(Transfer_Info_Ptr& tip1, char* letters, int n){
+	tip1->status_size = 0;
+	tip1->the_end_size = 0;
+
+	tip1->the_start = new Element();
+	status_init(tip1->the_start, 0, NULL);
+	tip1->status_size++;
+	tip1->status[tip1->status_size] = tip1->the_start;
+	
+	tip1->the_end_size++;
+	tip1->the_end[tip1->the_end_size] = new Element();
+	tip1->status_size++;
+	tip1->status[tip1->status_size] = tip1->the_end[tip1->the_end_size];
+	
+	tip1->letters_size = n;
+	for(int i = 1; i <= n; i++){
+		tip1->letters[i] = letters[i];
+	}
+}
+
+void transfer_info_merge(Transfer_Info_Ptr& tip1, Transfer_Info_Ptr& tip2, char reg_exp_letter){
+	
+}
+
+void transfer_info_destroy(Transfer_Info_Ptr& tip){
+	delete(tip->the_start);
+	delete[] (tip->the_end);
+	delete[] (tip->status);
+	delete tip;
+}
+
+
+
+
+
+
+/************************************************************************/
+/* functions about Calculating_Stack                                                                */
+/************************************************************************/
+void calculating_stack_init(Calculating_Stack& cs){
+	cs.head = 0;
+}
+
+int calculating_stack_push(Calculating_Stack& cs, Transfer_Info_Ptr tip){
+	if(cs.head + 1 < STACK_SIZE){
+		cs.head++;
+		cs.tip[cs.head] = tip;   
+		return 1;
+	}else{
+		return 0;
+	}
+}
+
+int calculating_stack_pop(Calculating_Stack& cs, Transfer_Info_Ptr& tip){
+	if(cs.head > 0){
+		tip = cs.tip[cs.head];
+		cs.head--;
+		return 1;
+	}else{
+		return 0;
+	}
+}
+
+int calculating_stack_gettop(Calculating_Stack& cs, Transfer_Info_Ptr& tip){
+	if(cs.head > 0){
+		tip = cs.tip[cs.head];
+		return 1;
+	}else{
+		return 0;
+	}
+}
+
+
+/************************************************************************/
+/*    function of Reg_Exp_Letter_Stack                                                                  */
+/************************************************************************/
+
+void reg_exp_letter_stack_init(Reg_Exp_Letter_Stack& rels){
+	rels.head = 0;
+}
+
+int reg_exp_letter_stack_push(Reg_Exp_Letter_Stack& rels, char c){
+	if(rels.head + 1 < STACK_SIZE){
+		rels.head++;
+		rels.c[rels.head] = c;   
+		return 1;
+	}else{
+		return 0;
+	}
+}
+
+int reg_exp_letter_stack_pop(Reg_Exp_Letter_Stack& rels, char& c){
+	if(rels.head > 0){
+		c = rels.c[rels.head]; 
+		rels.head--;
+		return 1;
+	}else{
+		return 0;
+	}
+}
+
+int reg_exp_letter_stack_gettop(Reg_Exp_Letter_Stack& rels, char& c){
+	if(rels.head > 0){
+		c = rels.c[rels.head]; 
+		return 1;
+	}else{
+		return 0;
 	}
 }
