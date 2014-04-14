@@ -1,6 +1,7 @@
 ﻿  justfortest.cpp
-i:\documents\visual studio 2010\projects\justfortest\justfortest\touwenjian.h(295): warning C4154: deletion of an array expression; conversion to pointer supplied
-i:\documents\visual studio 2010\projects\justfortest\justfortest\touwenjian.h(296): warning C4154: deletion of an array expression; conversion to pointer supplied
-i:\documents\visual studio 2010\projects\justfortest\justfortest\touwenjian.h(211): warning C4715: 'status_add_element' : not all control paths return a value
-cl : Command line warning D9028: minimal rebuild failure, reverting to normal build
-  justfortest.vcxproj -> i:\documents\visual studio 2010\Projects\justfortest\Debug\justfortest.exe
+i:\documents\visual studio 2010\projects\justfortest\justfortest\touwenjian.h(298): warning C4154: deletion of an array expression; conversion to pointer supplied
+i:\documents\visual studio 2010\projects\justfortest\justfortest\touwenjian.h(299): warning C4154: deletion of an array expression; conversion to pointer supplied
+i:\documents\visual studio 2010\projects\justfortest\justfortest\touwenjian.h(301): error C2143: syntax error : missing ';' before ')'
+i:\documents\visual studio 2010\projects\justfortest\justfortest\touwenjian.h(302): warning C4154: deletion of an array expression; conversion to pointer supplied
+i:\documents\visual studio 2010\projects\justfortest\justfortest\justfortest.cpp(21): error C3646: 's' : unknown override specifier
+i:\documents\visual studio 2010\projects\justfortest\justfortest\justfortest.cpp(26): warning C4018: '<' : signed/unsigned mismatch
