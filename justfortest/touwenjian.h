@@ -17,17 +17,17 @@ typedef struct {
 	char letters[N];	//所有字母
 	int letters_size;	//字母个数
 	Status the_start;
-	Status the_end[END_MAX];
+	Status the_end[END_MAX];	
 	int the_end_size;
 } Transfer_Info, *Transfer_Info_Ptr;
 
 typedef struct{
-	Transfer_Info_Ptr tip[STACK_SIZE];
+	Transfer_Info_Ptr tip[STACK_SIZE];	//下标为0的位置不用，作为哨兵（判断栈空用）
 	int head;
-} Calculating_Stack;
+} Calculating_Stack;	
 
 typedef struct{
-	char c[STACK_SIZE];
+	char c[STACK_SIZE];	//下标为0的位置不用，作为哨兵（判断栈空用）
 	int head;
 } Reg_Exp_Letter_Stack;
 
@@ -272,16 +272,19 @@ void transfer_info_init(Transfer_Info_Ptr& tip1, char* letters, int n){
 
 	tip1->the_start = new Element();
 	status_init(tip1->the_start, 0, NULL);
-	tip1->status_size++;
-	tip1->status[tip1->status_size] = tip1->the_start;
 	
-	tip1->the_end_size++;
-	tip1->the_end[tip1->the_end_size] = new Element();
+	tip1->status[tip1->status_size] = tip1->the_start;
 	tip1->status_size++;
+	
+	
+	tip1->the_end[tip1->the_end_size] = new Element();
+	tip1->the_end_size++;
+	
 	tip1->status[tip1->status_size] = tip1->the_end[tip1->the_end_size];
+	tip1->status_size++;
 	
 	tip1->letters_size = n;
-	for(int i = 1; i <= n; i++){
+	for(int i = 0; i < n; i++){
 		tip1->letters[i] = letters[i];
 	}
 }
@@ -295,6 +298,8 @@ void transfer_info_destroy(Transfer_Info_Ptr& tip){
 	delete[] (tip->the_end);
 	delete[] (tip->status);
 	delete tip;
+	for(int i = 0; i < tip->status_size)
+	delete[] tip->transfer_table[i];
 }
 
 

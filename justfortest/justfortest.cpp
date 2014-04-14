@@ -18,7 +18,7 @@ int condition2(char c){
 	}
 }
 
-char* format_reg_exp(char* reg_exp){
+char* format_reg_exp(char* reg_exp)s{
 	char* ret = new char[100];
 	int index = 0;
 	ret[0] = '#';
