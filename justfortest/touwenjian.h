@@ -24,12 +24,12 @@ typedef struct {
 typedef struct{
 	Transfer_Info_Ptr tip[STACK_SIZE];	//下标为0的位置不用，作为哨兵（判断栈空用）
 	int head;
-} Calculating_Stack;	
+} Calculating_Stack;	//存储计算机的中间结果（转移信息，即Transfer_Info）
 
 typedef struct{
 	char c[STACK_SIZE];	//下标为0的位置不用，作为哨兵（判断栈空用）
 	int head;
-} Reg_Exp_Letter_Stack;
+} Reg_Exp_Letter_Stack;		//存储正规式的运算符
 
 /************************************************************************/
 /*    functions about Status                                                                  */
@@ -298,8 +298,9 @@ void transfer_info_destroy(Transfer_Info_Ptr& tip){
 	delete[] (tip->the_end);
 	delete[] (tip->status);
 	delete tip;
-	for(int i = 0; i < tip->status_size)
-	delete[] tip->transfer_table[i];
+	for(int i = 0; i < tip->status_size; i++){
+		delete[] tip->transfer_table[i];
+	}
 }
 
 
