@@ -266,31 +266,44 @@ void status_create(Status &s, int* a, int n){		//根据数组中的元素创建一个集合，a
 /************************************************************************/
 
 
-void transfer_info_init(Transfer_Info_Ptr& tip1, char* letters, int n){
-	tip1->status_size = 0;
-	tip1->the_end_size = 0;
+void transfer_info_init(Transfer_Info_Ptr& tip1, char* letters, int n, char c){
+	tip1->status_size = 2;
+	tip1->the_end_size = 1;
 
 	tip1->the_start = new Element();
 	status_init(tip1->the_start, 0, NULL);
 	
-	tip1->status[tip1->status_size] = tip1->the_start;
-	tip1->status_size++;
+	tip1->status[0] = tip1->the_start;
 	
+	tip1->the_end[0] = new Element();
+	status_init(tip1->the_end[0], 1, NULL);
 	
-	tip1->the_end[tip1->the_end_size] = new Element();
-	tip1->the_end_size++;
-	
-	tip1->status[tip1->status_size] = tip1->the_end[tip1->the_end_size];
-	tip1->status_size++;
+	tip1->status[1] = tip1->the_end[0];
 	
 	tip1->letters_size = n;
 	for(int i = 0; i < n; i++){
 		tip1->letters[i] = letters[i];
 	}
+
+	for(int i = 0; i < tip1->status_size; i++){
+		for(int j = 0; j < tip1->letters_size; j++){
+			if(i == 0 && letters[j] == c){
+				Status s = new Element();
+				status_init(s, 1, NULL);
+				tip1->transfer_table[i][j] = s;
+			}else{
+				tip1->transfer_table[i][j] = NULL;
+			}
+		}
+	}
 }
 
 void transfer_info_merge(Transfer_Info_Ptr& tip1, Transfer_Info_Ptr& tip2, char reg_exp_letter){
 	
+}
+
+void transfer_info_calculate_closure(Transfer_Info_Ptr& tip){
+
 }
 
 void transfer_info_destroy(Transfer_Info_Ptr& tip){
@@ -328,6 +341,7 @@ int calculating_stack_push(Calculating_Stack& cs, Transfer_Info_Ptr tip){
 int calculating_stack_pop(Calculating_Stack& cs, Transfer_Info_Ptr& tip){
 	if(cs.head > 0){
 		tip = cs.tip[cs.head];
+		cs.tip[cs.head] = NULL;
 		cs.head--;
 		return 1;
 	}else{
@@ -366,6 +380,7 @@ int reg_exp_letter_stack_push(Reg_Exp_Letter_Stack& rels, char c){
 int reg_exp_letter_stack_pop(Reg_Exp_Letter_Stack& rels, char& c){
 	if(rels.head > 0){
 		c = rels.c[rels.head]; 
+		rels.c[rels.head] = ' ';
 		rels.head--;
 		return 1;
 	}else{

@@ -19,16 +19,35 @@ int condition2(char c){		//用于format_reg_exp（）
 }
 
 int condition3(char c){		//用于主函数
-	if(c == '*' || c == '.' || c == '|' || c == '(' || c == ')' || c == '#'){
+	if(c == '.' || c == '|' || c == '(' || c == ')' || c == '#'){
 		return 1;
 	}else{
 		return 0;
 	}
 }
 
+int compare_talbe[5][5] = {{1,1,-1,1,1}, 
+{-1,1,-1,1,1}, {-1,-1,-1,0,-2}, {1,1,-2,1,1}, {-1,-1,-1,-2,0}};
+char op_letters[5] = {'.', '|', '(', ')', '#'};
+
 int condition4(Reg_Exp_Letter_Stack& rels, char c){		//用于主函数，用于比较当前正规操作符和栈顶正规操作符的优先级
-	//未完
-	return 0;
+	char stack_top_char = ' ';
+	reg_exp_letter_stack_gettop(rels, stack_top_char);
+	int index1;
+	int index2;
+	for(int i = 0; i < 5; i++){
+		if(op_letters[i] == stack_top_char){
+			index1 = i;
+			break;
+		}
+	}
+	for(int i = 0; i < 5; i++){
+		if(op_letters[i] == c){
+			index2 = i;
+			break;
+		}
+	}
+	return compare_talbe[index1][index2];
 }
 
 char* format_reg_exp(char* reg_exp){
@@ -78,13 +97,22 @@ void main(){
 	calculating_stack_init(cs);
 	reg_exp_letter_stack_init(rels);
 
+	//把第一个‘#’压栈
+	reg_exp_letter_stack_push(rels, '#');
+
 	//对正规式的字符串（已经格式化）进行扫描，逐步构造NFA
-	for(int i = 0; reg_exp_formated[i] != '\0'; i++){
-		if(!condition3(reg_exp_formated[i])){
+	for(int i = 1; reg_exp_formated[i] != '\0'; i++){
+		if(reg_exp_formated[i] == '*'){		//一元操作符‘*’单独处理
 			Transfer_Info_Ptr tip = NULL;
-			transfer_info_init(tip, letters, letters_size);
+			calculating_stack_pop(cs, tip);
+			transfer_info_calculate_closure(tip);
 			calculating_stack_push(cs, tip);
-		}else if(condition4(rels, reg_exp_formated[i])){
+		}else if(!condition3(reg_exp_formated[i])){		//不是操作符
+			Transfer_Info_Ptr tip = NULL;
+			tip = new Transfer_Info();
+			transfer_info_init(tip, letters, letters_size, reg_exp_formated[i]);
+			calculating_stack_push(cs, tip);
+		}else if(condition4(rels, reg_exp_formated[i]) == 1){	//是操作符，但优先级小于栈顶元素
 			Transfer_Info_Ptr tip1 = NULL;
 			Transfer_Info_Ptr tip2 = NULL;
 			calculating_stack_pop(cs, tip1);
@@ -94,7 +122,10 @@ void main(){
 			transfer_info_merge(tip1, tip2, c);
 			calculating_stack_push(cs, tip1);
 			i = i - 1;	//让下次循环的i值不变
-		}else{
+		}else if(condition4(rels, reg_exp_formated[i]) == 0){	//是操作符，但优先级等于栈顶元素
+			char c = ' ';
+			reg_exp_letter_stack_pop(rels, c);
+		}else{		//是操作符，但优先级大于栈顶元素
 			reg_exp_letter_stack_push(rels, reg_exp_formated[i]);
 		}
 	}
@@ -109,5 +140,4 @@ void main(){
 	}
 	/*********************************************************/
 	delete reg_exp_formated;
-	cout<<reg_exp_formated<<endl;
 }
