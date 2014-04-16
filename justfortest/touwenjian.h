@@ -16,8 +16,7 @@ typedef struct {
 	Status transfer_table[M][N];	//状态转移表
 	char letters[N];	//所有字母
 	int letters_size;	//字母个数
-	Status the_start;
-	Status the_end[END_MAX];	
+	int the_end[END_MAX];	//终态在status里面的下标	
 	int the_end_size;
 } Transfer_Info, *Transfer_Info_Ptr;
 
@@ -270,15 +269,13 @@ void transfer_info_init(Transfer_Info_Ptr& tip1, char* letters, int n, char c){
 	tip1->status_size = 2;
 	tip1->the_end_size = 1;
 
-	tip1->the_start = new Element();
-	status_init(tip1->the_start, 0, NULL);
+	tip1->status[0] = new Element();
+	status_init(tip1->status[0], 0, NULL);
 	
-	tip1->status[0] = tip1->the_start;
-	
-	tip1->the_end[0] = new Element();
-	status_init(tip1->the_end[0], 1, NULL);
-	
-	tip1->status[1] = tip1->the_end[0];
+	tip1->status[1] = new Element();
+	status_init(tip1->status[1], 1, NULL);
+
+	tip1->the_end[0] = 1;
 	
 	tip1->letters_size = n;
 	for(int i = 0; i < n; i++){
@@ -298,8 +295,52 @@ void transfer_info_init(Transfer_Info_Ptr& tip1, char* letters, int n, char c){
 	}
 }
 
-void transfer_info_merge(Transfer_Info_Ptr& tip1, Transfer_Info_Ptr& tip2, char reg_exp_letter){
-	
+void transfer_info_add_index(Transfer_Info_Ptr& tip, int added_value){
+	for(int i = 0; i < tip->status_size; i++){
+		if(tip->status[i] != NULL){
+			for(Status s = tip->status[i]; s != NULL; s = s->next_element){
+				s->index += added_value;
+			}
+		}
+		
+		for(int j = 0; j < tip->letters_size; j++){
+			if(tip->transfer_table[i][j] != NULL){
+				for(Status s = tip->transfer_table[i][j]; s != NULL; s = s->next_element){
+					s->index += added_value;
+				}
+			}
+		}
+	}
+}
+
+void transfer_info_merge(Transfer_Info_Ptr& tip1, Transfer_Info_Ptr& tip2, char reg_exp_letter){	//由于一些编程上的障碍，暂时不考虑多个终态和由于括号的嵌套导致需要“合并子结构”的问题（即合并的时候只考虑线性的扩展）。
+	if(reg_exp_letter == '.'){
+		int tip1_status_size = tip1->status_size;
+		int tip2_status_size = tip2->status_size;
+		
+		//对tip2进行预处理
+		transfer_info_add_index(tip2, tip1->status_size - 1);
+
+		//把tip2的初态和tip1的终态合并
+		for(int i = 0; i < tip1->letters_size; i++){
+				tip1->transfer_table[tip1->the_end[0]][i] = status_union(tip1->transfer_table[tip1->the_end[0]][i], tip2->transfer_table[0][i]);
+		}
+
+		//把tip2的transfer_table中的其他状态做为新状态加入到tip1的transfer_table中
+		for(int i = 1; i < tip2->status_size; i++){
+			tip1->status[tip1->status_size + i - 1] = tip2->status[i];
+			for (int j = 0; j < tip1->letters_size; j++){
+				tip1->transfer_table[tip1->status_size + i - 1][j] = tip2->transfer_table[i][j];
+			}
+		}
+
+		//修改其他信息
+		tip1->the_end[0] = tip2->the_end[0] + tip1->status_size - 1;
+		tip1->status_size = tip1->status_size + tip2->status_size - 1;
+		
+	}else if(reg_exp_letter == '|'){
+
+	}
 }
 
 void transfer_info_calculate_closure(Transfer_Info_Ptr& tip){
@@ -307,13 +348,13 @@ void transfer_info_calculate_closure(Transfer_Info_Ptr& tip){
 }
 
 void transfer_info_destroy(Transfer_Info_Ptr& tip){
-	delete(tip->the_start);
-	delete[] (tip->the_end);
 	delete[] (tip->status);
-	delete tip;
 	for(int i = 0; i < tip->status_size; i++){
 		delete[] tip->transfer_table[i];
 	}
+
+	delete tip;		//最后delete tip；
+	
 }
 
 

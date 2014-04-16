@@ -119,8 +119,8 @@ void main(){
 			calculating_stack_pop(cs, tip2);
 			char c = ' ';
 			reg_exp_letter_stack_pop(rels, c);
-			transfer_info_merge(tip1, tip2, c);
-			calculating_stack_push(cs, tip1);
+			transfer_info_merge(tip2, tip1, c);
+			calculating_stack_push(cs, tip2);
 			i = i - 1;	//让下次循环的i值不变
 		}else if(condition4(rels, reg_exp_formated[i]) == 0){	//是操作符，但优先级等于栈顶元素
 			char c = ' ';
@@ -135,6 +135,7 @@ void main(){
 	calculating_stack_pop(cs, tip);
 	for(int i = 0; i < tip->status_size; i++){
 		for(int j = 0; j < tip->letters_size; j++){
+			cout<<i<<"行"<<j<<"列的状态值是：";
 			status_display((tip->transfer_table)[i][j]);
 		}
 	}
