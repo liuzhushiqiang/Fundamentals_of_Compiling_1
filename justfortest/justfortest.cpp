@@ -81,6 +81,16 @@ int letters_size = 2;
 Calculating_Stack cs;
 Reg_Exp_Letter_Stack rels;
 
+void transfer_info_display(Transfer_Info_Ptr tip){
+	for(int i = 0; i < tip->status_size; i++){
+		cout<<i<<"行"<<"的状态值依次是：";
+		for(int j = 0; j < tip->letters_size; j++){
+			status_display((tip->transfer_table)[i][j]);
+		}
+		cout<<endl;
+	}
+	cout<<endl;
+}
 
 void main(){
 	//读文件
@@ -117,6 +127,10 @@ void main(){
 			Transfer_Info_Ptr tip2 = NULL;
 			calculating_stack_pop(cs, tip1);
 			calculating_stack_pop(cs, tip2);
+			
+			transfer_info_display(tip2);
+			transfer_info_display(tip1);
+
 			char c = ' ';
 			reg_exp_letter_stack_pop(rels, c);
 			transfer_info_merge(tip2, tip1, c);
@@ -133,12 +147,7 @@ void main(){
 	//打印最后的状态转移表
 	Transfer_Info_Ptr tip = NULL;
 	calculating_stack_pop(cs, tip);
-	for(int i = 0; i < tip->status_size; i++){
-		for(int j = 0; j < tip->letters_size; j++){
-			cout<<i<<"行"<<j<<"列的状态值是：";
-			status_display((tip->transfer_table)[i][j]);
-		}
-	}
+	transfer_info_display(tip);
 	/*********************************************************/
 	delete reg_exp_formated;
 }

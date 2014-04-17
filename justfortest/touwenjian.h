@@ -40,11 +40,34 @@ void status_init(Status& s1, int index, Status s2){
 
 Status status_union(Status s1, Status s2){		//集合并运算,返回一个新的集合
 	Status ret = NULL;
+	if(s1 == NULL && s2 == NULL){
+		return ret;
+	}
 	if(s1 == NULL){
-		return ret = s2;
+		ret = new Element();
+		ret->index = s2->index;
+		ret->next_element = NULL;
+		Status q = ret;
+		for(Status p = s2->next_element; p != NULL; p = p->next_element, q = q->next_element){
+			Status t = new Element();
+			t->index = p->index;
+			t->next_element = NULL;
+			q->next_element = t;
+		}
+		return ret;
 	}
 	if(s2 == NULL){
-		return ret = s1;
+		ret = new Element();
+		ret->index = s1->index;
+		ret->next_element = NULL;
+		Status q = ret;
+		for(Status p = s1->next_element; p != NULL; p = p->next_element, q = q->next_element){
+			Status t = new Element();
+			t->index = p->index;
+			t->next_element = NULL;
+			q->next_element = t;
+		}
+		return ret;
 	}
 	Status s3 = s1;
 	Status s4 = s2;
@@ -247,11 +270,16 @@ void status_destroy(Status &s){		//销毁集合
 };
 
 void status_display(Status p){		//打印集合中的元素
+	if(p == NULL){
+		cout<<"( ) ";
+		return;
+	}
+	cout<<"(";
 	while(p != NULL){
-		cout<<p->index<<" ";
+		cout<<p->index;
 		p = p->next_element;
 	}
-	cout<<endl;
+	cout<<") ";
 }
 
 void status_create(Status &s, int* a, int n){		//根据数组中的元素创建一个集合，a为数组，数组中的值为待创建集合中元素的下标，n为数组大小
@@ -313,7 +341,13 @@ void transfer_info_add_index(Transfer_Info_Ptr& tip, int added_value){
 	}
 }
 
-void transfer_info_merge(Transfer_Info_Ptr& tip1, Transfer_Info_Ptr& tip2, char reg_exp_letter){	//由于一些编程上的障碍，暂时不考虑多个终态和由于括号的嵌套导致需要“合并子结构”的问题（即合并的时候只考虑线性的扩展）。
+void status_add_index(Status& s, int added_value){	
+	for(Status p = s; p != NULL; p = p->next_element){
+		p->index += added_value;
+	}
+}
+
+void transfer_info_merge(Transfer_Info_Ptr& tip1, Transfer_Info_Ptr& tip2, char reg_exp_letter){	//由于一些编程上的障碍，暂时不考虑多个终态和由于括号的嵌套导致需要“合并子结构”的问题（即合并的时候只考虑线性的扩展）。并且默认transfer_table中第一个是初态，最后一个是终态。
 	if(reg_exp_letter == '.'){
 		int tip1_status_size = tip1->status_size;
 		int tip2_status_size = tip2->status_size;
@@ -339,7 +373,75 @@ void transfer_info_merge(Transfer_Info_Ptr& tip1, Transfer_Info_Ptr& tip2, char 
 		tip1->status_size = tip1->status_size + tip2->status_size - 1;
 		
 	}else if(reg_exp_letter == '|'){
+		//把tip1的终态调整到最终位置
+		tip1->status[tip1->the_end[0] + tip2->status_size - 2] = status_union(NULL,tip1->status[tip1->the_end[0]]);
+		status_add_index(tip1->status[tip1->the_end[0] + tip2->status_size - 2], tip2->status_size - 2);
+		for(int i = 0; i < tip1->letters_size; i++){
+			tip1->transfer_table[tip1->the_end[0] + tip2->status_size - 2][i] = status_union(NULL,tip1->transfer_table[tip1->the_end[0]][i]);
+		}
 
+
+		//把tip1中指向原来终态的结点重新指向新的终态
+		for(int i = 0; i < tip1->status_size - 1; i++){
+			for(int j = 0; j < tip1->letters_size; j++){
+				if(status_compare(tip1->transfer_table[i][j], tip1->status[tip1->the_end[0]])){
+					tip1->transfer_table[i][j] = status_union(NULL, tip1->status[tip1->the_end[0] + tip2->status_size - 2]);
+				}else{
+					continue;
+				}
+			}
+		}
+		tip1->the_end[0] = tip1->the_end[0] + tip2->status_size - 2;
+
+		//tip2的初态合并到tip1的初态
+		for(int i = 0; i < tip1->letters_size; i++){
+			if(status_compare(tip2->transfer_table[0][i], tip2->status[0])){
+				tip1->transfer_table[0][i] = status_union(tip1->transfer_table[0][i], tip1->status[0]);
+			}else if(status_compare(tip2->transfer_table[0][i], tip2->status[tip2->the_end[0]])){
+				tip1->transfer_table[0][i] = status_union(tip1->transfer_table[0][i], tip1->status[tip1->the_end[0]]);
+
+			}else{
+				status_add_index(tip2->transfer_table[0][i], tip1->status_size - 2);
+				tip1->transfer_table[0][i] = status_union(tip1->transfer_table[0][i], tip2->transfer_table[0][i]);
+			}
+		}
+
+		//tip2的终态合并到tip1的终态
+		for(int i = 0; i < tip1->letters_size; i++){
+			if(status_compare(tip2->transfer_table[tip2->the_end[0]][i], tip2->status[0])){
+				tip1->transfer_table[tip1->the_end[0]][i] = status_union(tip1->transfer_table[tip1->the_end[0]][i], tip1->status[0]);
+			}else if(status_compare(tip2->transfer_table[tip2->the_end[0]][i], tip2->status[tip2->the_end[0]])){
+				tip1->transfer_table[tip1->the_end[0]][i] = status_union(tip1->transfer_table[tip1->the_end[0]][i], tip1->status[tip1->the_end[0]]);
+
+			}else{
+				status_add_index(tip2->transfer_table[tip2->the_end[0]][i], tip1->status_size - 2);
+				tip1->transfer_table[tip1->the_end[0]][i] = status_union(tip1->transfer_table[tip1->the_end[0]][i], tip2->transfer_table[tip2->the_end[0]][i]);
+			}
+		}
+		
+
+
+		//合并其他(非初态和非终态)
+		for(int i = 1; i < tip2->status_size - 1; i++){
+			for(int j = 0; j < tip2->letters_size; j++){
+				if(status_compare(tip2->transfer_table[i][j], tip2->status[0])){
+					tip1->transfer_table[i + tip1->status_size - 2][j] = status_union(NULL, tip1->status[0]);
+				}else if(status_compare(tip2->transfer_table[i][j], tip2->status[tip2->the_end[0]])){
+					tip1->transfer_table[i + tip1->status_size - 2][j] = status_union(NULL, tip1->status[tip1->the_end[0]]);
+
+				}else{
+					status_add_index(tip2->transfer_table[i][j], tip1->status_size - 2);
+					tip1->transfer_table[i + tip1->status_size - 2][j] = status_union(NULL, tip2->transfer_table[i][j]);
+				}
+			}
+		}
+
+
+		//修改其他信息
+		for(int i = 1; i < tip2->status_size - 1; i++){
+			tip1->status[tip1->status_size + i - 2] = tip2->status[i];
+		}
+		tip1->status_size = tip1->status_size + tip2->status_size - 2;
 	}
 }
 
