@@ -1,1 +1,1 @@
-ab|ba
+b(a|b)*bab

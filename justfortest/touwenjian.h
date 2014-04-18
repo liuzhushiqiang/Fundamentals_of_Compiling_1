@@ -445,8 +445,14 @@ void transfer_info_merge(Transfer_Info_Ptr& tip1, Transfer_Info_Ptr& tip2, char 
 	}
 }
 
-void transfer_info_calculate_closure(Transfer_Info_Ptr& tip){
-
+void transfer_info_calculate_closure(Transfer_Info_Ptr& tip){	//这个做得极其简单，只能处理a*，不能处理（ab）*，即假定tip中原来只有两个状态
+	for(int i = 0; i < tip->letters_size; i++){
+		if(tip->transfer_table[0][i] != NULL){
+			tip->transfer_table[0][i] = status_union(NULL, tip->status[0]);
+		}
+	}
+	tip->the_end[0] = 0;
+	tip->status_size = 1;
 }
 
 void transfer_info_destroy(Transfer_Info_Ptr& tip){

@@ -1,6 +1,6 @@
 ﻿  justfortest.cpp
-i:\documents\visual studio 2010\projects\justfortest\justfortest\touwenjian.h(453): warning C4154: deletion of an array expression; conversion to pointer supplied
-i:\documents\visual studio 2010\projects\justfortest\justfortest\touwenjian.h(455): warning C4154: deletion of an array expression; conversion to pointer supplied
+i:\documents\visual studio 2010\projects\justfortest\justfortest\touwenjian.h(459): warning C4154: deletion of an array expression; conversion to pointer supplied
+i:\documents\visual studio 2010\projects\justfortest\justfortest\touwenjian.h(461): warning C4154: deletion of an array expression; conversion to pointer supplied
 i:\documents\visual studio 2010\projects\justfortest\justfortest\justfortest.cpp(58): warning C4018: '<' : signed/unsigned mismatch
 i:\documents\visual studio 2010\projects\justfortest\justfortest\touwenjian.h(233): warning C4715: 'status_add_element' : not all control paths return a value
   justfortest.vcxproj -> i:\documents\visual studio 2010\Projects\justfortest\Debug\justfortest.exe
