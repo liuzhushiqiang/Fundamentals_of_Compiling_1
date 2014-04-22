@@ -23,6 +23,9 @@
     <None Include="input.txt">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="yuanchengxu.txt">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="touwenjian.h">

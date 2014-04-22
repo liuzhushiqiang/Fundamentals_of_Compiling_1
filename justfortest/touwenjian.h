@@ -1,13 +1,14 @@
 using namespace std;
 
 #define M 1000	//状态数
-#define N 70	//字母表大小
+#define N 100	//字母表大小
 #define END_MAX 20	//终态的个数
 #define STACK_SIZE 50
 
 typedef struct Element{
 	int index;		//状态中元素的下标
 	struct Element * next_element;
+	int end_flag;	//表示终态所对应的记号的编号，非终态该值为-1.
 } Element, *Status;		//该类型代表状态中的元素，指向该类型的指针代表一个状态。
 
 typedef struct {
@@ -33,9 +34,10 @@ typedef struct{
 /************************************************************************/
 /*    functions about Status                                                                  */
 /************************************************************************/
-void status_init(Status& s1, int index, Status s2){
+void status_init(Status& s1, int index, int end_flag, Status s2){
 	s1->index = index;
 	s1->next_element = s2;
+	s1->end_flag = end_flag;
 }
 
 Status status_union(Status s1, Status s2){		//集合并运算,返回一个新的集合
@@ -298,10 +300,10 @@ void transfer_info_init(Transfer_Info_Ptr& tip1, char* letters, int n, char c){
 	tip1->the_end_size = 1;
 
 	tip1->status[0] = new Element();
-	status_init(tip1->status[0], 0, NULL);
+	status_init(tip1->status[0], 0, -1, NULL);
 
 	tip1->status[1] = new Element();
-	status_init(tip1->status[1], 1, NULL);
+	status_init(tip1->status[1], 1, -1,  NULL);
 
 	tip1->the_end[0] = 1;
 	
@@ -314,7 +316,7 @@ void transfer_info_init(Transfer_Info_Ptr& tip1, char* letters, int n, char c){
 		for(int j = 0; j < tip1->letters_size; j++){
 			if(i == 0 && letters[j] == c){
 				Status s = new Element();
-				status_init(s, 1, NULL);
+				status_init(s, 1, -1, NULL);
 				tip1->transfer_table[i][j] = s;
 			}else{
 				tip1->transfer_table[i][j] = NULL;
