@@ -299,7 +299,7 @@ void transfer_info_init(Transfer_Info_Ptr& tip1, char* letters, int n, char c){
 
 	tip1->status[0] = new Element();
 	status_init(tip1->status[0], 0, NULL);
-	
+
 	tip1->status[1] = new Element();
 	status_init(tip1->status[1], 1, NULL);
 

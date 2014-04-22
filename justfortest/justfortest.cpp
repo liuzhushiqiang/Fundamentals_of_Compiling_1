@@ -95,8 +95,14 @@ void transfer_info_display(Transfer_Info_Ptr tip){
 void main(){
 	//读文件
 	ifstream ifs("input.txt", ios::in);
+	ifs>>letters_size;
+	for(int i = 0 ; i < letters_size; i++){
+		ifs>>letters[i];
+	}
+
 	char reg_exp[100];
-	ifs.getline(reg_exp, 100, '\n');
+	ifs.getline(reg_exp, 100, '\n');	//吸收末尾的换行符
+	ifs.getline(reg_exp, 100, '\n');	//读正规式
 
 	//对正规式的字符串进行格式化
 	char* reg_exp_formated = format_reg_exp(reg_exp);
@@ -128,8 +134,8 @@ void main(){
 			calculating_stack_pop(cs, tip1);
 			calculating_stack_pop(cs, tip2);
 			
-			transfer_info_display(tip2);
-			transfer_info_display(tip1);
+			//transfer_info_display(tip2);
+			//transfer_info_display(tip1);
 
 			char c = ' ';
 			reg_exp_letter_stack_pop(rels, c);
