@@ -166,10 +166,6 @@ Transfer_Info_Ptr tip2 = NULL;	//整数常量和小数常量的转移信息
 Transfer_Info_Ptr tip3 = NULL;	//标识符的转移信息
 char loop_buffer[200];
 
-void input_file_format(char* input_file){
-
-}
-
 void transfer_info_init1(Transfer_Info_Ptr& tip){
 	tip->letters_size = letters_size;
 	for(int i = 0; i < letters_size; i++){
@@ -220,10 +216,97 @@ void init_to_create_all_transfer_table(){
 		(tip1->transfer_table[index_i_pre][tokens[i][j - 1] - ' '])->end_flag = i;
 		(tip1->status[(tip1->transfer_table[index_i_pre][tokens[i][j - 1] - ' '])->index])->end_flag = i;
 	}
+
+	
+	//构造常量的转移表（整数、小数）
+	tip2 = new Transfer_Info();
+	transfer_info_init1(tip2);
+	
+	Status s1 = new Element();
+	status_init(s1, tip2->status_size, -1, NULL);
+	s1->end_flag = 67;
+	tip2->status[tip2->status_size] = s1;
+	tip2->status_size++;
+	int index_presenet = 0;
+	for(int i = 0; i < 9; i++){
+		(tip2->transfer_table[index_presenet]['1' - ' ' + i]) = status_union(NULL, tip2->status[tip2->status_size - 1]);	
+	}
+	index_presenet = tip2->status_size - 1;
+	for(int i = 0; i < 10; i++){
+		(tip2->transfer_table[index_presenet]['0' - ' ' + i]) = status_union(NULL, tip2->status[tip2->status_size - 1]);	
+	}
+	Status s2 = new Element();
+	status_init(s2, tip2->status_size, -1, NULL);
+	s2->end_flag = 68;
+	tip2->status[tip2->status_size] = s2;
+	tip2->status_size++;
+	(tip2->transfer_table[index_presenet]['.' - ' ']) = status_union(NULL, tip2->status[tip2->status_size - 1]);
+	index_presenet = tip2->status_size - 1;
+	for(int i = 0; i < 10; i++){
+		(tip2->transfer_table[index_presenet]['0' - ' ' + i]) = status_union(NULL, tip2->status[tip2->status_size - 1]);	
+	}
+
+	//单独处理0或0.x这种情况
+	Status s3 = new Element();
+	status_init(s3, tip2->status_size, -1, NULL);
+	s3->end_flag = 67;
+	tip2->status[tip2->status_size] = s3;
+	tip2->status_size++;
+	index_presenet = 0;
+	(tip2->transfer_table[index_presenet]['0' - ' ']) = status_union(NULL, tip2->status[tip2->status_size - 1]);
+	index_presenet = tip2->status_size - 1;
+	Status s4 = new Element();
+	status_init(s4, tip2->status_size, -1, NULL);
+	s4->end_flag = 68;
+	tip2->status[tip2->status_size] = s4;
+	tip2->status_size++;
+	(tip2->transfer_table[index_presenet]['.' - ' ']) = status_union(NULL, tip2->status[tip2->status_size - 1]);
+	index_presenet = tip2->status_size - 1;
+	for(int i = 0; i < 10; i++){
+		(tip2->transfer_table[index_presenet]['0' - ' ' + i]) = status_union(NULL, tip2->status[tip2->status_size - 1]);	
+	}
+
+
+	//构造标识符的转移表
+	tip3 = new Transfer_Info();
+	transfer_info_init1(tip3);
+
+	Status s5 = new Element();
+	status_init(s5, tip3->status_size, -1, NULL);
+	s5->end_flag = 69;
+	tip3->status[tip3->status_size] = s5;
+	tip3->status_size++;
+	index_presenet = 0;
+	for(int i = 0; i < 26; i++){
+		(tip3->transfer_table[index_presenet]['A' - ' ' + i]) = status_union(NULL, tip3->status[tip3->status_size - 1]);	
+	}
+	for(int i = 0; i < 26; i++){
+		(tip3->transfer_table[index_presenet]['a' - ' ' + i]) = status_union(NULL, tip3->status[tip3->status_size - 1]);	
+	}
+	index_presenet = tip3->status_size - 1;
+	for(int i = 0; i < 26; i++){
+		(tip3->transfer_table[index_presenet]['A' - ' ' + i]) = status_union(NULL, tip3->status[tip3->status_size - 1]);	
+	}
+	for(int i = 0; i < 26; i++){
+		(tip3->transfer_table[index_presenet]['a' - ' ' + i]) = status_union(NULL, tip3->status[tip3->status_size - 1]);	
+	}
+	for(int i = 0; i < 10; i++){
+		(tip3->transfer_table[index_presenet]['0' - ' ' + i]) = status_union(NULL, tip3->status[tip3->status_size - 1]);	
+	}
+}
+
+void input_file_format(char* input_file){
+	ifstream ifs = ifstream(input_file, ios::in);
+	ofstream ofs = ofstream("temp.txt",  ios::app);
+	char temp[200];		//限制源文件中每个独立字符串最多200个字符
+	for( ; ifs>>temp; ){
+		ofs<<temp;
+		cout<<temp<<endl;
+	}
 }
 
 void cifafenxi(char* input_file){
-
+	input_file_format(input_file);
 }
 
 

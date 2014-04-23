@@ -78,6 +78,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="input.txt" />
+    <None Include="temp.txt" />
     <None Include="yuanchengxu.txt" />
   </ItemGroup>
   <ItemGroup>
