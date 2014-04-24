@@ -48,11 +48,13 @@ Status status_union(Status s1, Status s2){		//集合并运算,返回一个新的集合
 	if(s1 == NULL){
 		ret = new Element();
 		ret->index = s2->index;
+		ret->end_flag = s2->end_flag;
 		ret->next_element = NULL;
 		Status q = ret;
 		for(Status p = s2->next_element; p != NULL; p = p->next_element, q = q->next_element){
 			Status t = new Element();
 			t->index = p->index;
+			t->end_flag = p->end_flag;
 			t->next_element = NULL;
 			q->next_element = t;
 		}
@@ -61,11 +63,13 @@ Status status_union(Status s1, Status s2){		//集合并运算,返回一个新的集合
 	if(s2 == NULL){
 		ret = new Element();
 		ret->index = s1->index;
+		ret->end_flag = s1->end_flag;
 		ret->next_element = NULL;
 		Status q = ret;
 		for(Status p = s1->next_element; p != NULL; p = p->next_element, q = q->next_element){
 			Status t = new Element();
 			t->index = p->index;
+			t->end_flag = p->end_flag;
 			t->next_element = NULL;
 			q->next_element = t;
 		}
@@ -78,6 +82,7 @@ Status status_union(Status s1, Status s2){		//集合并运算,返回一个新的集合
 	if(s3->index > s4->index){		//找第一个元素
 		Status s5 = new Element();
 		s5->index = s4->index;
+		s5->end_flag = s4->end_flag;
 		s5->next_element = NULL;
 		ret = s5;
 		tail = s5;
@@ -85,6 +90,7 @@ Status status_union(Status s1, Status s2){		//集合并运算,返回一个新的集合
 	}else if(s3->index == s4->index){
 		Status s5 = new Element();
 		s5->index = s3->index;
+		s5->end_flag = s3->end_flag;
 		s5->next_element = NULL;
 		ret = s5;
 		tail = s5;
@@ -93,6 +99,7 @@ Status status_union(Status s1, Status s2){		//集合并运算,返回一个新的集合
 	}else if(s3->index < s4->index){
 		Status s5 = new Element();
 		s5->index = s3->index;
+		s5->end_flag = s3->end_flag;
 		s5->next_element = NULL;
 		ret = s5;
 		tail = s5;
@@ -103,6 +110,7 @@ Status status_union(Status s1, Status s2){		//集合并运算,返回一个新的集合
 		if(s3->index > s4->index){
 			Status s5 = new Element();
 			s5->index = s4->index;
+			s5->end_flag = s4->end_flag;
 			s5->next_element = NULL;
 			tail->next_element = s5;
 			tail = s5;
@@ -110,6 +118,7 @@ Status status_union(Status s1, Status s2){		//集合并运算,返回一个新的集合
 		}else if(s3->index == s4->index){
 			Status s5 = new Element();
 			s5->index = s3->index;
+			s5->end_flag = s3->end_flag;
 			s5->next_element = NULL;
 			tail->next_element = s5;
 			tail = s5;
@@ -118,6 +127,7 @@ Status status_union(Status s1, Status s2){		//集合并运算,返回一个新的集合
 		}else if(s3->index < s4->index){
 			Status s5 = new Element();
 			s5->index = s3->index;
+			s5->end_flag = s3->end_flag;
 			s5->next_element = NULL;
 			tail->next_element = s5;
 			tail = s5;
@@ -129,6 +139,7 @@ Status status_union(Status s1, Status s2){		//集合并运算,返回一个新的集合
 		while(s4 != NULL){
 			Status s5 = new Element();
 			s5->index = s4->index;
+			s5->end_flag = s4->end_flag;
 			s5->next_element = NULL;
 			tail->next_element = s5;
 			tail = s5;
@@ -140,6 +151,7 @@ Status status_union(Status s1, Status s2){		//集合并运算,返回一个新的集合
 		while(s3 != NULL){
 			Status s5 = new Element();
 			s5->index = s3->index;
+			s5->end_flag = s3->end_flag;
 			s5->next_element = NULL;
 			tail->next_element = s5;
 			tail = s5;

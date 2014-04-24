@@ -1,1 +1,0 @@
-#include<stdio.h>doubleperimeter(doubleradius,doublepi){return2*pi*radius;}intfactorial(intn){intresult=1;for(inti=1;i<=n;i++){result*=i;}returnresult;}voidmain(){perimeter(2,3.14);factorial(10);}
