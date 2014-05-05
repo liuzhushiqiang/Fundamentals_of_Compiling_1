@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-double ?perimeter(double radius, double pi){
+double perimeter(double radius, double pi){ 
 	return 2 * pi * radius;
 } 
 
@@ -13,7 +13,7 @@ int factorial(int n){
 }
 
 
-void main(){
+void ?main(){
 	perimeter(2, 3.14);
 	factorial(10);
 }

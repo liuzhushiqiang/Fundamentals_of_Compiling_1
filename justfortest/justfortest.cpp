@@ -1,173 +1,21 @@
 #include <iostream>
 #include<fstream>
+#include <stdlib.h> 
 #include "touwenjian.h"
 
-int condition1(char c){		//用于format_reg_exp（）
-	if(c == '|' || c == '('){
-		return 1;
-	}else{
-		return 0;
-	}
-}
-
-int condition2(char c){		//用于format_reg_exp（）
-	if(c == '|' || c == '*' || c == ')' || c == '\0'){
-		return 1;
-	}else{
-		return 0;
-	}
-}
-
-int condition3(char c){		//用于主函数
-	if(c == '.' || c == '|' || c == '(' || c == ')' || c == '#'){
-		return 1;
-	}else{
-		return 0;
-	}
-}
-
-int compare_talbe[5][5] = {{1,1,-1,1,1}, 
-{-1,1,-1,1,1}, {-1,-1,-1,0,-2}, {1,1,-2,1,1}, {-1,-1,-1,-2,0}};
-char op_letters[5] = {'.', '|', '(', ')', '#'};
-
-int condition4(Reg_Exp_Letter_Stack& rels, char c){		//用于主函数，用于比较当前正规操作符和栈顶正规操作符的优先级
-	char stack_top_char = ' ';
-	reg_exp_letter_stack_gettop(rels, stack_top_char);
-	int index1;
-	int index2;
-	for(int i = 0; i < 5; i++){
-		if(op_letters[i] == stack_top_char){
-			index1 = i;
-			break;
-		}
-	}
-	for(int i = 0; i < 5; i++){
-		if(op_letters[i] == c){
-			index2 = i;
-			break;
-		}
-	}
-	return compare_talbe[index1][index2];
-}
-
-char* format_reg_exp(char* reg_exp){
-	char* ret = new char[100];
-	int index = 0;
-	ret[0] = '#';
-	index++;
-	for(int i = 0; i < strlen(reg_exp); i++){
-		if(!condition1(reg_exp[i]) && !condition2(reg_exp[i+1])){
-			ret[index] = reg_exp[i];
-			index++;
-			ret[index] = '.';
-			index++;
-		}else{
-			ret[index] = reg_exp[i]; 
-			index++;
-		}
-	}
-	ret[index] = '#';
-	index++;
-	ret[index] = '\0';
-	index++;
-	return ret;
-}
-
-void transfer_info_display(Transfer_Info_Ptr tip){
-	for(int i = 0; i < tip->status_size; i++){
-		cout<<i<<"行"<<"的状态值依次是：";
-		for(int j = 0; j < tip->letters_size; j++){
-			status_display((tip->transfer_table)[i][j]);
-		}
-		cout<<endl;
-	}
-	cout<<endl;
-}
-
-void reg_to_NFA(char* letters, int letters_size){
-	Calculating_Stack cs;
-	Reg_Exp_Letter_Stack rels;
-
-	//读文件
-	ifstream ifs("input.txt", ios::in);
-	ifs>>letters_size;
-	for(int i = 0 ; i < letters_size; i++){
-		ifs>>letters[i];
-	}
-
-	char reg_exp[100];
-	ifs.getline(reg_exp, 100, '\n');	//吸收末尾的换行符
-	ifs.getline(reg_exp, 100, '\n');	//读正规式
-
-	//对正规式的字符串进行格式化
-	char* reg_exp_formated = format_reg_exp(reg_exp);
-	cout<<reg_exp_formated<<endl;
-	/*********************************************************/
-
-	//初始化两个栈
-	calculating_stack_init(cs);
-	reg_exp_letter_stack_init(rels);
-
-	//把第一个‘#’压栈
-	reg_exp_letter_stack_push(rels, '#');
-
-	//对正规式的字符串（已经格式化）进行扫描，逐步构造NFA
-	for(int i = 1; reg_exp_formated[i] != '\0'; i++){
-		if(reg_exp_formated[i] == '*'){		//一元操作符‘*’单独处理
-			Transfer_Info_Ptr tip = NULL;
-			calculating_stack_pop(cs, tip);
-			transfer_info_calculate_closure(tip);
-			calculating_stack_push(cs, tip);
-		}else if(!condition3(reg_exp_formated[i])){		//不是操作符
-			Transfer_Info_Ptr tip = NULL;
-			tip = new Transfer_Info();
-			transfer_info_init(tip, letters, letters_size, reg_exp_formated[i]);
-			calculating_stack_push(cs, tip);
-		}else if(condition4(rels, reg_exp_formated[i]) == 1){	//是操作符，但优先级小于栈顶元素
-			Transfer_Info_Ptr tip1 = NULL;
-			Transfer_Info_Ptr tip2 = NULL;
-			calculating_stack_pop(cs, tip1);
-			calculating_stack_pop(cs, tip2);
-			
-			//transfer_info_display(tip2);
-			//transfer_info_display(tip1);
-
-			char c = ' ';
-			reg_exp_letter_stack_pop(rels, c);
-			transfer_info_merge(tip2, tip1, c);
-			calculating_stack_push(cs, tip2);
-			i = i - 1;	//让下次循环的i值不变
-		}else if(condition4(rels, reg_exp_formated[i]) == 0){	//是操作符，但优先级等于栈顶元素
-			char c = ' ';
-			reg_exp_letter_stack_pop(rels, c);
-		}else{		//是操作符，但优先级大于栈顶元素
-			reg_exp_letter_stack_push(rels, reg_exp_formated[i]);
-		}
-	}
-
-	//打印最后的状态转移表
-	Transfer_Info_Ptr tip = NULL;
-	calculating_stack_pop(cs, tip);
-	transfer_info_display(tip);
-	/*********************************************************/
-	delete reg_exp_formated;
-}
-
 /************************************************************************/
-/* 以下是词法分析器中的一些函数和变量                                                                     */
+/* 以下是“词法分析器”中的一些函数和变量                                                                     */
 /************************************************************************/
 char letters[N];
 int letters_size;
 char tokens[300][15] = {"char", "int", "short", "long", "signed", "unsigned", "float", "double", "const", "void", "enum", "struct", "union", "typeof", "static", "if", "else", "switch", "case", "default", "while", "do", "for", "break", "continue", "return", "sizeof", "#include", "#define", "+",  "++",  "+=", "-", "-=", "--", "*", "*=", "/", "/=", "<", "<=", ">", ">=", "=", "==", ">>", "<<", "!=", "&", "&&", "|", "||", "%", "%=", ";", "[", "]", "(", ")", "{", "}", "\'", "\"", ":", ".", ",", "整数", "浮点数", "标识符"};	//存储记号的类别，记号最长限制在15个字符
 int token_count = 69;	//预定义记号的种类数
 int line_position[100];		//存储源程序经过整理之后每一行开始字符的位置信息，限制最多100行,从“第0行”开始计数
-int no_use1 = 0;		//如果不加这个变量，line_total会被改成0，很奇怪，应该是哪里访问越界。但是我目前还看不出line_positiont哪里有越界。
 int line_total = 0;		//总行数
 Transfer_Info_Ptr tip1 = NULL;	//关键字、运算符、分隔符的转移信息
 Transfer_Info_Ptr tip2 = NULL;	//整数常量和小数常量的转移信息
 Transfer_Info_Ptr tip3 = NULL;	//标识符的转移信息
-char loop_buffer[200];		//双缓冲，用于暂存读入的部分源程序（源程序经过格式化）
-char no_use2;	//loop_buffer是有人为地越界一个字符，后面的一个字符会被‘\0'覆盖掉
+char loop_buffer[201];		//双缓冲，用于暂存读入的部分源程序（源程序经过格式化）
 typedef struct{//记号类型
 	int index;
 	char token[100];
@@ -306,7 +154,9 @@ void init_to_create_all_transfer_table(){
 
 void input_file_format(char* input_file){
 	ifstream ifs = ifstream(input_file, ios::in);
-	ofstream ofs = ofstream("temp.txt", ios::out | ios::app);		//temp.txt每次都要手动清空
+	ofstream ofs1 = ofstream("temp.txt", ios::out);		//temp.txt每次都要手动清空
+	ofs1.close();
+	ofstream ofs = ofstream("temp.txt", ios::app);		//temp.txt每次都要手动清空
 	char line_str[200];		//限制源文件中每行最多200个字符
 	char* word_str;		//限制源文件中每个独立的字符串最多200个字符
 	char delim[] = " \t";
